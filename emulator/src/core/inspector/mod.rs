@@ -15,9 +15,6 @@ use sfml::system::Vector2f;
 use sfml::graphics::*;
 use sfml::window::Key;
 
-const LABEL_SIZE: Vector2f = Vector2f::new(400.0, 20.0);
-const TEXT_OFFSET: Vector2f = Vector2f::new(10.0, 1.0);
-const LABEL_GAP: f32 = 3.0;
 const TRACKER_STEP: f32 = 20.0;
 const LEVEL_STEP: f32 = 20.0;
 const TRACKER_OFFSET: f32 = 5.0;
@@ -25,8 +22,12 @@ const TRACKER_MARGIN: f32 = 3.0;
 const ITEM_GAP: f32 = 3.0;
 const STATE_OFFSET: f32 = 10.0;
 
+const LABEL_SIZE: Vector2f = Vector2f::new(400.0, 20.0);
+const TEXT_OFFSET: Vector2f = Vector2f::new(10.0, 1.0);
+
 const LABEL_COLOR: Color = Color::rgb(55, 55, 55);
 const TRACKER_COLOR: Color = Color::rgb(40, 40, 40);
+const OVERLAY_COLOR: Color = Color::rgb(43, 43, 43);
 const TEXT_COLOR: Color = Color::rgb(160, 160, 160);
 const STABLE_COLOR: Color = Color::rgb(100, 150, 100);
 const METASTABLE_COLOR: Color = Color::rgb(250, 100, 100);
@@ -40,6 +41,7 @@ pub struct Inspector<'a> {
     root_item: InspectorItem,
     label_background: RectangleShape<'a>,
     tracker_background: RectangleShape<'a>,
+    tracker_overlay: RectangleShape<'a>,
     label_text: Text<'a>,
     state_text: Text<'a>,
     trackers: Vec<Tracker>,
@@ -53,12 +55,16 @@ impl<'a> Inspector<'a> {
 
         let label_width = LABEL_SIZE.x;
         let track_size = Vector2f::new(interface_size.x - LABEL_SIZE.x - TRACKER_OFFSET, LABEL_SIZE.y);
+        let overlay_size = Vector2f::new(TRACKER_STEP, LABEL_SIZE.y);
 
         let mut label_background = RectangleShape::with_size(LABEL_SIZE);
         label_background.set_fill_color(LABEL_COLOR);
 
         let mut tracker_background = RectangleShape::with_size(track_size);
         tracker_background.set_fill_color(TRACKER_COLOR);
+
+        let mut tracker_overlay = RectangleShape::with_size(overlay_size);
+        tracker_overlay.set_fill_color(OVERLAY_COLOR);
 
         let mut label_text = Text::default();
         label_text.set_fill_color(TEXT_COLOR);
@@ -76,6 +82,7 @@ impl<'a> Inspector<'a> {
             root_item: root_item,
             label_background: label_background,
             tracker_background: tracker_background,
+            tracker_overlay: tracker_overlay,
             label_text: label_text,
             state_text: state_text,
             trackers: trackers,
@@ -141,7 +148,6 @@ impl<'a> Inspector<'a> {
     pub fn draw(&mut self, window: &mut RenderWindow, mut position: Vector2f) {
         let root_item = self.root_item.clone();
         self.draw_item(window, &root_item, &mut position, 0.0);
-
     }
 
     fn draw_state_text(&mut self, window: &mut RenderWindow, position: Vector2f, color: Color, source: &str) {
@@ -167,6 +173,23 @@ impl<'a> Inspector<'a> {
         if self.show_trackers {
             self.tracker_background.set_position(position + Vector2f::new(LABEL_SIZE.x + TRACKER_OFFSET, 0.0));
             window.draw(&self.tracker_background);
+
+            let mut offset = position.x + LABEL_SIZE.x + TRACKER_OFFSET;
+            while offset < self.interface_size.x + position.x {
+
+                let delta = self.interface_size.x + position.x - offset;
+                self.tracker_overlay.set_position(Vector2f::new(offset, position.y));
+
+                if delta < self.step_size {
+                    self.tracker_overlay.set_size(Vector2f::new(delta, LABEL_SIZE.y));
+                    window.draw(&self.tracker_overlay);
+                    self.tracker_overlay.set_size(Vector2f::new(self.step_size, LABEL_SIZE.y));
+                    break;
+                } else {
+                    window.draw(&self.tracker_overlay);
+                    offset += self.step_size * 2.0;
+                }
+            }
         }
     }
 
@@ -192,11 +215,11 @@ impl<'a> Inspector<'a> {
 
                         if self.show_trackers {
 
-                            let start_position = *position + Vector2f::new(LABEL_SIZE.x + TRACKER_OFFSET, 0.0);
                             let mut step_offset = 0.0;
                             let mut previous_state = ValueState::Stable(0);
                             let mut tracker_graph = VertexArray::default();
                             tracker_graph.set_primitive_type(PrimitiveType::LineStrip);
+                            let start_position = *position + Vector2f::new(LABEL_SIZE.x + TRACKER_OFFSET, 0.0);
 
                             for state in &self.value_trackers[index].states {
 
@@ -209,7 +232,15 @@ impl<'a> Inspector<'a> {
 
                                 tracker_graph.append(&Vertex::with_pos_color(start_position + Vector2f::new(step_offset, LABEL_SIZE.y / 2.0), color));
                                 step_offset += self.step_size;
-                                tracker_graph.append(&Vertex::with_pos_color(start_position + Vector2f::new(step_offset, LABEL_SIZE.y / 2.0), color));
+
+                                if start_position.x + step_offset > position.x + self.interface_size.x {
+                                    let clamped_position = Vector2f::new(position.x + self.interface_size.x, start_position.y + LABEL_SIZE.y / 2.0);
+                                    tracker_graph.append(&Vertex::with_pos_color(clamped_position, color));
+                                    break;
+                                } else {
+                                    tracker_graph.append(&Vertex::with_pos_color(start_position + Vector2f::new(step_offset, LABEL_SIZE.y / 2.0), color));
+                                }
+                                
                                 previous_state = *state;
                             }
 
@@ -236,17 +267,25 @@ impl<'a> Inspector<'a> {
 
                     if self.show_trackers {
 
-                        let start_position = *position + Vector2f::new(LABEL_SIZE.x + TRACKER_OFFSET, 0.0);
                         let mut step_offset = 0.0;
                         let mut tracker_graph = VertexArray::default();
                         tracker_graph.set_primitive_type(PrimitiveType::LineStrip);
+                        let start_position = *position + Vector2f::new(LABEL_SIZE.x + TRACKER_OFFSET, 0.0);
 
                         for state in &self.trackers[*index].states {
+                            
                             let color = Self::get_state_color(state);
                             let height = Self::get_state_height(state);
                             tracker_graph.append(&Vertex::with_pos_color(start_position + Vector2f::new(step_offset, height), color));
                             step_offset += self.step_size;
-                            tracker_graph.append(&Vertex::with_pos_color(start_position + Vector2f::new(step_offset, height), color));
+
+                            if start_position.x + step_offset > position.x + self.interface_size.x {
+                                let clamped_position = Vector2f::new(position.x + self.interface_size.x, start_position.y + height);
+                                tracker_graph.append(&Vertex::with_pos_color(clamped_position, color));
+                                break;
+                            } else {
+                                tracker_graph.append(&Vertex::with_pos_color(start_position + Vector2f::new(step_offset, height), color));
+                            }
                         }
 
                         window.draw(&tracker_graph);

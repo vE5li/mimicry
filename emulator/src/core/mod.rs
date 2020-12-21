@@ -3,7 +3,7 @@ mod inspector;
 
 use self::logic::*;
 use self::inspector::*;
-use sfml::graphics::{ RenderTarget, RenderWindow, Color, Font, Transformable, Shape };
+use sfml::graphics::{ RenderWindow, Font };
 use sfml::system::Vector2f;
 use sfml::window::Key;
 
