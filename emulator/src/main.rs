@@ -33,6 +33,8 @@ fn main() {
                     if code == Key::Space {
                         cores.iter_mut().for_each(|core| core.tick(rising));
                         rising = !rising;
+                    } else {
+                        cores[0].handle_key_input(code);
                     }
                 }
 
@@ -40,7 +42,7 @@ fn main() {
             }
         }
 
-        window.clear(Color::rgb(30, 30, 30));
+        window.clear(Color::rgb(25, 25, 25));
         cores[0].draw(&mut window);
         window.display();
     }

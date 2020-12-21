@@ -5,6 +5,7 @@ use self::logic::*;
 use self::inspector::*;
 use sfml::graphics::{ RenderTarget, RenderWindow, Color, Font, Transformable, Shape };
 use sfml::system::Vector2f;
+use sfml::window::Key;
 
 const INTERFACE_BORDER: f32 = 5.0;
 
@@ -56,13 +57,13 @@ impl<'a> Core<'a> {
         input0_group.push(InspectorItem::Label(0, "register 0"));
         input0_group.push(InspectorItem::Label(1, "register 1"));
         input0_group.push(InspectorItem::Label(2, "register 2"));
-        core_group.push(InspectorItem::Group(input0_group, Some(0), "input 0", true));
+        core_group.push(InspectorItem::Group(input0_group, Some((0, Formatting::Binary)), "input 0", true));
 
         let mut input1_group = Vec::new();
         input1_group.push(InspectorItem::Label(3, "register 0"));
         input1_group.push(InspectorItem::Label(4, "register 1"));
         input1_group.push(InspectorItem::Label(5, "register 2"));
-        core_group.push(InspectorItem::Group(input1_group, Some(1), "input 1", true));
+        core_group.push(InspectorItem::Group(input1_group, Some((1, Formatting::Binary)), "input 1", true));
 
         let mut gates_group = Vec::new();
         gates_group.push(InspectorItem::Label(6, "AND gate"));
@@ -128,10 +129,16 @@ impl<'a> Core<'a> {
         };
     }
 
+    pub fn handle_key_input(&mut self, key: Key) {
+        if let Some(inspector) = &mut self.inspector {
+            inspector.handle_key_input(key);
+        }
+    }
+
     pub fn update_size(&mut self, interface_size: Vector2f) {
         if let Some(inspector) = &mut self.inspector {
             inspector.update_size(interface_size - (INTERFACE_BORDER * 2.0));
-        } 
+        }
     }
 
     pub fn tick(&mut self, rising: bool) {
