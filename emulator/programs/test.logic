@@ -1,0 +1,67 @@
+@ input 0 = 3
+0 = #0
+1 = #0
+2 = #1
+3 = #1
+
+@ input 1 = 4
+4 = #0
+5 = #1
+6 = #0
+7 = #0
+
+@ half adder
+8 ~ 0 ^ 4           @ bit 0
+12 ~ 0 & 4          @ carry 0
+
+@ full adder
+16 ~ 1 ^ 5
+9 ~ 16 ^ 12         @ bit 1
+17 ~ 1 & 5
+18 ~ 1 ^ 5
+19 ~ 18 & 12
+13 ~ 17 | 19        @ carry 1
+
+@ full adder
+20 ~ 2 ^ 6
+10 ~ 20 ^ 13        @ bit 2
+21 ~ 2 & 6
+22 ~ 2 ^ 6
+23 ~ 22 & 13
+14 ~ 21 | 23        @ carry 2
+
+@ full adder
+24 ~ 3 ^ 7
+11 ~ 24 ^ 14        @ bit 3
+25 ~ 3 & 7
+26 ~ 3 ^ 7
+27 ~ 26 & 14
+15 ~ 25 | 27        @ carry out
+
+@ labels
+"4-bit adder" (
+    "left input" decimal (
+        "bit 0" ? 0
+        "bit 1" ? 1
+        "bit 2" ? 2
+        "bit 3" ? 3
+    )
+    "right input" decimal (
+        "bit 0" ? 4
+        "bit 1" ? 5
+        "bit 2" ? 6
+        "bit 3" ? 7
+    )
+    "carry" binary (
+        "carry 0" ? 12
+        "carry 1" ? 13
+        "carry 2" ? 14
+        "carry out" ? 15
+    )
+    "sum" decimal (
+        "bit 0" ? 8
+        "bit 1" ? 9
+        "bit 2" ? 10
+        "bit 3" ? 11
+    )
+)
