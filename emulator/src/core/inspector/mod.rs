@@ -17,9 +17,9 @@ use sfml::window::Key;
 
 const TRACKER_STEP: f32 = 20.0;
 const LEVEL_STEP: f32 = 20.0;
-const TRACKER_OFFSET: f32 = 5.0;
+const TRACKER_OFFSET: f32 = 7.0;
 const TRACKER_MARGIN: f32 = 3.0;
-const ITEM_GAP: f32 = 3.0;
+const ITEM_GAP: f32 = 2.0;
 const STATE_OFFSET: f32 = 10.0;
 
 const LABEL_SIZE: Vector2f = Vector2f::new(400.0, 20.0);
@@ -27,7 +27,7 @@ const TEXT_OFFSET: Vector2f = Vector2f::new(10.0, 1.0);
 
 const LABEL_COLOR: Color = Color::rgb(55, 55, 55);
 const TRACKER_COLOR: Color = Color::rgb(40, 40, 40);
-const OVERLAY_COLOR: Color = Color::rgb(43, 43, 43);
+const OVERLAY_COLOR: Color = Color::rgb(45, 45, 45);
 const TEXT_COLOR: Color = Color::rgb(160, 160, 160);
 const STABLE_COLOR: Color = Color::rgb(100, 150, 100);
 const METASTABLE_COLOR: Color = Color::rgb(250, 100, 100);

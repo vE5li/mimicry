@@ -7,7 +7,7 @@ use sfml::graphics::{ RenderWindow, Font };
 use sfml::system::Vector2f;
 use sfml::window::Key;
 
-const INTERFACE_BORDER: f32 = 5.0;
+const INTERFACE_BORDER: f32 = 10.0;
 
 pub struct Core<'a> {
     cycle_count: usize,
