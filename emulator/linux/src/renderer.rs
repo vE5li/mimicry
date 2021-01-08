@@ -1,6 +1,6 @@
 use common::*;
 use sfml::graphics::{ RenderTarget, RenderWindow, Font, View, FloatRect, RectangleShape, Text, Shape, Transformable, VertexArray, PrimitiveType };
-use sfml::window::{ Event, Style, Key };
+use sfml::window::{ Event, Style };
 use sfml::system::Vector2f;
 use sfml::SfBox;
 
