@@ -1,12 +1,12 @@
 use super::LabelSource;
-use core::logic::{ LogicState };
+use crate::device::core::LogicState;
 
-pub struct Tracker {
+pub struct LogicTracker {
     pub source: LabelSource,
     pub states: Vec<LogicState>,
 }
 
-impl Tracker {
+impl LogicTracker {
 
     pub fn new(source: LabelSource) -> Self {
         return Self {

@@ -1,89 +1,87 @@
 mod logic;
 mod inspector;
 
+use crate::types::*;
 use self::logic::*;
 use self::inspector::*;
-use sfml::graphics::{ RenderWindow, Font };
-use sfml::system::Vector2f;
-use sfml::window::Key;
 
 const INTERFACE_BORDER: f32 = 10.0;
 
-pub struct Core<'a> {
+pub struct Core {
     cycle_count: usize,
     gates: Vec<Gate>,
     registers: Vec<Register>,
     constants: Vec<Constant>,
-    inspector: Option<Inspector<'a>>,
+    inspector: Option<Inspector>,
 }
 
-impl<'a> Core<'a> {
+impl Core {
 
-    pub fn load(_filename: String, font: &'a Font, interface_size: Vector2f, debugging: bool) -> Self {
+    pub fn load(_filename: String, interface_size: FloatVector, debugging: bool) -> Self {
 
         let mut gates = Vec::new();
         let mut registers = Vec::new();
         let mut constants = Vec::new();
         let mut core_group = Vec::new();
 
-        let mut trackers = Vec::new();
+        let mut logic_trackers = Vec::new();
         let mut value_trackers = Vec::new();
 
         // TEMP
 
-        trackers.push(Tracker::new(LabelSource::Gate(0, false)));
-        trackers.push(Tracker::new(LabelSource::Gate(1, false)));
-        trackers.push(Tracker::new(LabelSource::Gate(2, false)));
-        trackers.push(Tracker::new(LabelSource::Gate(0, true)));
-        trackers.push(Tracker::new(LabelSource::Gate(1, true)));
-        trackers.push(Tracker::new(LabelSource::Gate(2, true)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Gate(0, false)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Gate(1, false)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Gate(2, false)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Gate(0, true)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Gate(1, true)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Gate(2, true)));
 
-        trackers.push(Tracker::new(LabelSource::Register(6)));
-        trackers.push(Tracker::new(LabelSource::Register(7)));
-        trackers.push(Tracker::new(LabelSource::Register(8)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(6)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(7)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(8)));
 
-        trackers.push(Tracker::new(LabelSource::Register(0)));
-        trackers.push(Tracker::new(LabelSource::Register(1)));
-        trackers.push(Tracker::new(LabelSource::Register(2)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(0)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(1)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(2)));
 
-        trackers.push(Tracker::new(LabelSource::Register(3)));
-        trackers.push(Tracker::new(LabelSource::Register(4)));
-        trackers.push(Tracker::new(LabelSource::Register(5)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(3)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(4)));
+        logic_trackers.push(LogicTracker::new(LabelSource::Register(5)));
 
         value_trackers.push(ValueTracker::new(vec![2, 1, 0]));
         value_trackers.push(ValueTracker::new(vec![5, 4, 3]));
 
         let mut input0_group = Vec::new();
-        input0_group.push(InspectorItem::Label(0, "register 0"));
-        input0_group.push(InspectorItem::Label(1, "register 1"));
-        input0_group.push(InspectorItem::Label(2, "register 2"));
-        core_group.push(InspectorItem::Group(input0_group, Some((0, Formatting::Binary)), "input 0", true));
+        input0_group.push(InspectorItem::Label(Label::new("register 0", 0)));
+        input0_group.push(InspectorItem::Label(Label::new("register 1", 1)));
+        input0_group.push(InspectorItem::Label(Label::new("register 2", 2)));
+        core_group.push(InspectorItem::Group(Group::new("input 0", Some((0, Formatting::Binary)), input0_group)));
 
         let mut input1_group = Vec::new();
-        input1_group.push(InspectorItem::Label(3, "register 0"));
-        input1_group.push(InspectorItem::Label(4, "register 1"));
-        input1_group.push(InspectorItem::Label(5, "register 2"));
-        core_group.push(InspectorItem::Group(input1_group, Some((1, Formatting::Binary)), "input 1", true));
+        input1_group.push(InspectorItem::Label(Label::new("register 0", 3)));
+        input1_group.push(InspectorItem::Label(Label::new("register 1", 4)));
+        input1_group.push(InspectorItem::Label(Label::new("register 2", 5)));
+        core_group.push(InspectorItem::Group(Group::new("input 1", Some((1, Formatting::Binary)), input1_group)));
 
         let mut gates_group = Vec::new();
-        gates_group.push(InspectorItem::Label(6, "AND gate"));
-        gates_group.push(InspectorItem::Label(7, "XOR gate"));
-        gates_group.push(InspectorItem::Label(8, "XOR gate"));
-        core_group.push(InspectorItem::Group(gates_group, None, "gates", true));
+        gates_group.push(InspectorItem::Label(Label::new("AND gate", 6)));
+        gates_group.push(InspectorItem::Label(Label::new("XOR gate", 7)));
+        gates_group.push(InspectorItem::Label(Label::new("XOR gate", 8)));
+        core_group.push(InspectorItem::Group(Group::new("gates", None, gates_group)));
 
         let mut buffer_group = Vec::new();
-        buffer_group.push(InspectorItem::Label(9, "register 0"));
-        buffer_group.push(InspectorItem::Label(10, "register 1"));
-        buffer_group.push(InspectorItem::Label(11, "register 2"));
-        core_group.push(InspectorItem::Group(buffer_group, None, "buffer", true));
+        buffer_group.push(InspectorItem::Label(Label::new("register 0", 9)));
+        buffer_group.push(InspectorItem::Label(Label::new( "register 1", 1)));
+        buffer_group.push(InspectorItem::Label(Label::new( "register 2", 1)));
+        core_group.push(InspectorItem::Group(Group::new("buffer", None, buffer_group)));
 
         let mut gates_group = Vec::new();
-        gates_group.push(InspectorItem::Label(12, "output 0"));
-        gates_group.push(InspectorItem::Label(13, "output 1"));
-        gates_group.push(InspectorItem::Label(14, "output 2"));
-        core_group.push(InspectorItem::Group(gates_group, None, "inverter", true));
+        gates_group.push(InspectorItem::Label(Label::new( "output 0", 1)));
+        gates_group.push(InspectorItem::Label(Label::new( "output 1", 1)));
+        gates_group.push(InspectorItem::Label(Label::new( "output 2", 1)));
+        core_group.push(InspectorItem::Group(Group::new("inverter", None, gates_group)));
 
-        let root_item = InspectorItem::Group(core_group, None, "core", true);
+        let root_item = InspectorItem::Group(Group::new("core", None, core_group));
 
         registers.push(Register::new(Input::new(LogicState::High), Output::Gate(0, false), true));
         registers.push(Register::new(Input::new(LogicState::Low), Output::Gate(1, false), true));
@@ -115,10 +113,7 @@ impl<'a> Core<'a> {
 
         // TEMP
 
-        let inspector = match debugging {
-            true => Some(Inspector::new(font, interface_size, trackers, value_trackers, root_item)),
-            false => None,
-        };
+        let inspector = debugging.then(|| Inspector::new(interface_size, logic_trackers, value_trackers, root_item));
 
         return Self {
             cycle_count: 0,
@@ -135,9 +130,9 @@ impl<'a> Core<'a> {
         }
     }
 
-    pub fn update_size(&mut self, interface_size: Vector2f) {
+    pub fn resize(&mut self, interface_size: FloatVector) {
         if let Some(inspector) = &mut self.inspector {
-            inspector.update_size(interface_size - (INTERFACE_BORDER * 2.0));
+            inspector.resize(interface_size - FloatVector::with(INTERFACE_BORDER * 2.0));
         }
     }
 
@@ -166,10 +161,9 @@ impl<'a> Core<'a> {
         }
     }
 
-    pub fn draw(&mut self, window: &mut RenderWindow) {
-        if let Some(inspector) = &mut self.inspector {
-            let position = Vector2f::new(INTERFACE_BORDER, INTERFACE_BORDER);
-            inspector.draw(window, position);
+    pub fn draw<T: Renderer>(&self, renderer: &mut T, position: FloatVector) {
+        if let Some(inspector) = &self.inspector {
+            inspector.draw(renderer, position + FloatVector::with(INTERFACE_BORDER));
         }
     }
 }

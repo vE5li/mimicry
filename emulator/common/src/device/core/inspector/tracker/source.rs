@@ -1,4 +1,4 @@
-use core::logic::{ LogicState, Register, Gate };
+use crate::device::core::{ LogicState, Register, Gate };
 
 #[derive(Copy, Clone, Debug)]
 pub enum LabelSource {

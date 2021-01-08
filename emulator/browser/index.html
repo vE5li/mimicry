@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+
+        <title>mimicry emulator</title>
+    </head>
+
+    <body style="margin: 0px; overflow: hidden; background: #191919">
+
+        <canvas id="canvas"/>
+
+        <script src='wasm/emulator.js'></script>
+
+        <script>
+            const { Device, start_device } = wasm_bindgen;
+
+            async function create_device() {
+                await wasm_bindgen('wasm/emulator.wasm');
+                return Device.new();
+            }
+
+            create_device().then(device => {
+                device.render();
+
+                document.addEventListener('keydown', function(event) {
+                    device.handle_key_input(event.keyCode);
+                });
+
+                window.addEventListener('resize', function(event) {
+                    device.resize(window.innerWidth, window.innerHeight);
+                });
+            });
+
+        </script>
+    </body>
+</html>

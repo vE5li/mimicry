@@ -1,0 +1,37 @@
+[package]
+name = "mimicry-emulator-linux"
+version = "0.1.0"
+authors = ["Lucas Pütz <vE5li@tuta.io>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = "s"
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+console_error_panic_hook = { version = "0.1.6", optional = true }
+wee_alloc = { version = "0.4.5", optional = true }
+common = { path = "../common" }
+webgl-font = { git = "https://github.com/vE5li/webgl-font" }
+wasm-bindgen = "0.2.63"
+js-sys = "0.3.46"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+  'Document',
+  'Element',
+  'HtmlCanvasElement',
+  'WebGlBuffer',
+  'WebGlRenderingContext',
+  'WebGlProgram',
+  'WebGlShader',
+  'WebGlUniformLocation',
+  'KeyboardEvent',
+  'Window',
+]
