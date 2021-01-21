@@ -205,6 +205,7 @@ impl Renderer for WebGLRenderer {
 
     fn display(&mut self) {
         self.context.flush();
+        self.context.finish();
     }
 
     fn draw_rectangle(&mut self, position: FloatVector, size: FloatVector, color: Color) {
