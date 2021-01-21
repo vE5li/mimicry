@@ -17,7 +17,7 @@ default = ["console_error_panic_hook"]
 console_error_panic_hook = { version = "0.1.6", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
 common = { path = "../common" }
-webgl-font = { git = "https://github.com/vE5li/webgl-font" }
+webgl-font = { git = "https://github.com/vE5li/webgl-font", branch = "main" }
 wasm-bindgen = "0.2.63"
 js-sys = "0.3.46"
 
